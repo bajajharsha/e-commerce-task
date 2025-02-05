@@ -4,6 +4,7 @@ from app.repositories.user_repository import UserRepository
 from app.models.schemas.user_schema import UserCreate
 from app.models.schemas.response_schema import BaseResponse 
 from app.utils.security import get_password_hash, create_access_token
+from fastapi.responses import JSONResponse  # This allows you to specify status codes
 
 class AuthService:
     def __init__(self, user_repo: UserRepository = Depends(UserRepository)):
@@ -13,11 +14,14 @@ class AuthService:
     async def register_user(self, user_data: UserCreate) -> BaseResponse:  # Return BaseResponse instead of UserResponse
         existing_user = await self.user_repo.get_user_by_email(user_data.email)
         if existing_user:
-            return BaseResponse(
-                data=None,
-                message="User already exists",
-                code=status.HTTP_400_BAD_REQUEST,  # Use a 400 code for error cases
-                error="User with this email already exists"
+            return JSONResponse(
+                content=BaseResponse(
+                    data=None,
+                    message="User already exists",
+                    code=status.HTTP_400_BAD_REQUEST,
+                    error="User with this email already exists"
+                ).model_dump(),
+                status_code=status.HTTP_400_BAD_REQUEST
             )
 
         hashed_password = get_password_hash(user_data.password)
@@ -41,17 +45,18 @@ class AuthService:
         #     secure=False,    # Use only HTTPS in production
         # )
 
-        return BaseResponse(
-            data={  # This is now directly returned inside the `data` field of BaseResponse
-                "id": str(user_id),  # Use correct dictionary syntax
-                "name": user_data.name,
-                "email": user_data.email,
-                "role": user_data.role,
-                # "access_token": access_token
-            },
+        return JSONResponse(
+            content=BaseResponse(
+                data={  # This is now directly returned inside the `data` field of BaseResponse
+                    "id": str(user_id),  # Use correct dictionary syntax
+                    "name": user_data.name,
+                    "email": user_data.email,
+                    "role": user_data.role,
+                    # "access_token": access_token
+                },
             message="User registered successfully",
             code=status.HTTP_201_CREATED,
             error=None
-        )
-
-
+                ).model_dump(),
+                status_code=status.HTTP_201_CREATED
+            )
