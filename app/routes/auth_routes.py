@@ -4,6 +4,7 @@ from app.controllers.auth_controller import AuthController
 from app.models.schemas.user_schema import UserCreate, UserResponse
 from app.models.schemas.response_schema import BaseResponse
 from app.models.schemas.user_schema import UserLogin
+from app.utils.dependencies import RoleChecker
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -15,3 +16,6 @@ async def register(user: UserCreate, auth_controller: AuthController = Depends(A
 async def register(user: UserLogin, response: Response, auth_controller: AuthController = Depends(AuthController)):
     return await auth_controller.login(user, response)
 
+@router.get("/test")
+async def test(payload:dict = Depends(RoleChecker(["seller"]))):
+    return "yayayayayaya"

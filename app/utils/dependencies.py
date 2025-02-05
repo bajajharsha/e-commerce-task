@@ -17,8 +17,8 @@ class RoleChecker:
         try:
             payload = jwt.decode(
                 access_token,
-                settings.JWT_SECRET,
-                algorithms=[settings.JWT_ALGORITHM]
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algorithm]
             )
             role = payload.get("role")
             if role not in self.allowed_roles:
