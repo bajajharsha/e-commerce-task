@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from fastapi import Depends
 from app.config.database import database
 from bson import ObjectId
+from app.models.schemas.products_schema import ProductUpdateSchema
 
 class ProductsRepository:
     def __init__(self, db: AsyncIOMotorCollection = Depends(database.get_db)):
@@ -36,3 +37,16 @@ class ProductsRepository:
             return {k: v for k, v in product.items() if v is not None}  # Exclude None values
 
         return None
+    
+    async def update_product(self, product_id: str, product_data: ProductUpdateSchema):
+        product_object_id = product_id
+        update_data = product_data.dict(exclude_unset=True)  # Only update the fields that are provided
+        
+        # Find and update the product in the database
+        updated_product = await self.collection.find_one_and_update(
+            {"_id": product_object_id},
+            {"$set": update_data},
+            return_document=True  # Return the updated document
+        )
+        
+        return updated_product

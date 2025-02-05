@@ -3,6 +3,7 @@ from fastapi import Depends, HTTPException, status
 from app.usecases.products_usecase import ProductsUseCase
 from fastapi.responses import JSONResponse
 from app.models.schemas.response_schema import BaseResponse
+from app.models.schemas.products_schema import ProductUpdateSchema
 
 class ProductsController:
     def __init__(self, products_usecase: ProductsUseCase = Depends()):
@@ -61,3 +62,18 @@ class ProductsController:
                         error=str(e)
                     )
             )
+            
+    async def update_product(self, product_id: str, product_data: ProductUpdateSchema):
+        # Call the service to update the product
+        updated_product = await self.products_usecase.update_product(product_id, product_data)
+        if not updated_product:
+            return JSONResponse(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    content=BaseResponse(
+                        data=None,
+                        message="Some error occurred while fetching the data",
+                        code=status.HTTP_404_NOT_FOUND,
+                        error="Product Not Found"
+                    )
+            )
+        return updated_product

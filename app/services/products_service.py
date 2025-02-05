@@ -8,6 +8,7 @@ from app.repositories.user_repository import UserRepository
 from app.models.domain.products import Product
 from bson import ObjectId
 from app.models.schemas.response_schema import BaseResponse
+from app.models.schemas.products_schema import ProductUpdateSchema
 
 class ProductsService:
     def __init__(
@@ -96,6 +97,23 @@ class ProductsService:
         return BaseResponse(
             data=result,
             message="Fetched product successfully",
+            code=status.HTTP_200_OK,
+            error=None
+        )
+        
+    async def update_product(self, product_id: str, product_data: ProductUpdateSchema):
+        result = await self.products_repo.update_product(product_id, product_data)
+        if result is None:
+            return BaseResponse(
+            data=result,
+            message="No data Found",
+            code=status.HTTP_200_OK,
+            error=None
+            )
+            
+        return BaseResponse(
+            data=result,
+            message="Data Updated Successfully",
             code=status.HTTP_200_OK,
             error=None
         )

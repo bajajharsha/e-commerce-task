@@ -14,3 +14,6 @@ class ProductsUseCase:
     
     async def get_product_by_id(self, product_id):
         return await self.products_service.get_product_by_id(product_id)
+    
+    async def update_product(self, product_id, product_data):
+        return await self.products_service.update_product(product_id, product_data)
