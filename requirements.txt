@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+bson
+python-dotenv
+motor 
+passlib[bcrypt] 
+python-jose
+pydantic[email]
+pydantic-settings
