@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from app.services.auth_services import AuthService
 from app.models.schemas.user_schema import UserCreate, UserResponse
 from app.models.schemas.response_schema import BaseResponse
@@ -13,7 +13,7 @@ class AuthUseCase:
             return BaseResponse(
                 data=None,
                 message="Registration failed",
-                code=400,
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 error=result["error"]
             )
         return result

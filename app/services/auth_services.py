@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, status
 from passlib.context import CryptContext
 from app.repositories.user_repository import UserRepository
 from app.models.schemas.user_schema import UserCreate
@@ -16,7 +16,7 @@ class AuthService:
             return BaseResponse(
                 data=None,
                 message="User already exists",
-                code=400,  # Use a 400 code for error cases
+                code=status.HTTP_400_BAD_REQUEST,  # Use a 400 code for error cases
                 error="User with this email already exists"
             )
 
@@ -50,7 +50,7 @@ class AuthService:
                 # "access_token": access_token
             },
             message="User registered successfully",
-            code=200,
+            code=status.HTTP_201_CREATED,
             error=None
         )
 
