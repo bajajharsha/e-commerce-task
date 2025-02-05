@@ -12,3 +12,8 @@ class UserRepository:
     async def create_user(self, user_data: dict):
         result = await self.collection.insert_one(user_data)
         return result.inserted_id
+    
+    async def get_users_by_role(self, role: str) -> list:
+        """Retrieve all users with a given role (e.g., 'seller')."""
+        sellers = await self.collection.find({"role": role}).to_list(length=None)
+        return [{**seller, "_id": str(seller["_id"])} for seller in sellers]
