@@ -6,6 +6,7 @@ from app.models.schemas.response_schema import BaseResponse
 from app.utils.security import get_password_hash, create_access_token, verify_password
 from fastapi.responses import JSONResponse  # This allows you to specify status codes
 from app.models.schemas.user_schema import UserLogin
+from app.models.domain.user import User
 
 class AuthService:
     def __init__(self, user_repo: UserRepository = Depends(UserRepository)):
@@ -33,19 +34,18 @@ class AuthService:
         
         
         del user_dict["password"]
+        
+        user = User(
+            name=user_data.name,
+            email=user_data.email,
+            password_hash=hashed_password,
+            role=user_data.role
+        )
+
+        user_dict = user.to_dict()  
 
         user_id = await self.user_repo.create_user(user_dict)
         
-        # access_token = create_access_token(data={"sub": str(user_id), "role": user_data.role})
-        
-        # # Set access token in a secure HttpOnly cookie
-        # response.set_cookie(
-        #     key="access_token",
-        #     value=access_token,
-        #     httponly=True,  # Make sure JavaScript cannot access it
-        #     secure=False,    # Use only HTTPS in production
-        # )
-
         return JSONResponse(
             content=BaseResponse(
                 data={  # This is now directly returned inside the `data` field of BaseResponse
