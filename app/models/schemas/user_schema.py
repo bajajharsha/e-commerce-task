@@ -12,3 +12,7 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     role: Literal["admin", "buyer", "seller"]
+    
+class UserLogin(BaseModel):
+    email: str
+    password: str

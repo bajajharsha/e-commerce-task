@@ -1,10 +1,11 @@
-from fastapi import Depends, status
+from fastapi import Depends, status, Response
 from passlib.context import CryptContext
 from app.repositories.user_repository import UserRepository
 from app.models.schemas.user_schema import UserCreate
 from app.models.schemas.response_schema import BaseResponse 
-from app.utils.security import get_password_hash, create_access_token
+from app.utils.security import get_password_hash, create_access_token, verify_password
 from fastapi.responses import JSONResponse  # This allows you to specify status codes
+from app.models.schemas.user_schema import UserLogin
 
 class AuthService:
     def __init__(self, user_repo: UserRepository = Depends(UserRepository)):
@@ -60,3 +61,48 @@ class AuthService:
                 ).model_dump(),
                 status_code=status.HTTP_201_CREATED
             )
+        
+    async def login_user(self, user_data: UserLogin, response: Response) -> BaseResponse:
+        user = await self.user_repo.get_user_by_email(user_data.email)
+        if not user:
+            return JSONResponse(
+                content=BaseResponse(
+                    data=None,
+                    message="User does not exists",
+                    code=status.HTTP_400_BAD_REQUEST,
+                    error="User with this email does not exist."
+                ).model_dump(),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verify password
+        if not verify_password(user_data.password, user["password_hash"]):
+            return JSONResponse(
+                content=BaseResponse(
+                    data=None,
+                    message="User does not exists",
+                    code=status.HTTP_401_UNAUTHORIZED,
+                    error="Invalid credentials"
+                ).model_dump(),
+                status_code=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Create JWT Token
+        access_token = create_access_token(data={"sub": str(user["_id"]), "role": user["role"]})
+
+        # Set the JWT token in an HttpOnly cookie
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,  # Make sure JavaScript cannot access it
+            secure=False,   # Set to True for production (HTTPS only)
+        )
+
+        return BaseResponse(
+            data={
+                "message": "Login successful",
+            },
+            message="Login successful",
+            code=status.HTTP_200_OK,
+            error=None
+        )
