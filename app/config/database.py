@@ -7,6 +7,7 @@ class Database:
         self.db = self.client[settings.mongodb_db]
         self.user_collection = self.db["users"]
         self.products_collection = self.db["products"]
+        self.complaint_collection = self.db["complaints"]
         
     async def get_db(self):
         self.db
@@ -16,6 +17,9 @@ class Database:
     
     def get_products_collection(self):
         return self.products_collection
+    
+    def get_complaint_collection(self):
+        return self.complaint_collection
 
 database = Database()
 
