@@ -28,6 +28,7 @@ class ProductsRepository:
             await self.collection.insert_many(products)
             
     async def create_product(self, product: dict) -> str:
+        product["_id"] = str(ObjectId())  
         result = await self.collection.insert_one(product)
         product["_id"] = str(result.inserted_id)
         return product
