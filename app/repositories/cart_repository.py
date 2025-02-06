@@ -10,3 +10,9 @@ class CartRepository:
         result = await self.collection.insert_one(cart_data)
         return result
     
+    async def get_cart_by_user_id(self, user_id: str):
+        cart_items = await self.collection.find({"user_id": user_id}).to_list(length=100) 
+        # make _id a string
+        for cart_item in cart_items:
+            cart_item["_id"] = str(cart_item["_id"])
+        return cart_items

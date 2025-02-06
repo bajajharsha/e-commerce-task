@@ -11,3 +11,6 @@ class CartUseCase:
     async def add_cart(self, cart_data: CartCreate, user_id) -> BaseResponse:
         result = await self.cart_service.add_cart(cart_data, user_id)
         return result
+    
+    async def get_cart(self, user_id: str):
+        return await self.cart_service.get_cart(user_id)

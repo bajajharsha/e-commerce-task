@@ -10,3 +10,5 @@ class CartController:
     async def add_cart(self, cart: CartCreate, user_id: str):
         return await self.cart_usecase.add_cart(cart, user_id)
 
+    async def get_cart(self, user_id: str):
+        return await self.cart_usecase.get_cart(user_id)

@@ -26,3 +26,9 @@ class CartService:
             "data": data
         }
         
+    async def get_cart(self, user_id: str) -> BaseResponse:
+        cart_items = await self.cart_repo.get_cart_by_user_id(user_id)
+        if not cart_items:
+            return {"status": "error", "message": "No cart items found for the user"}
+        return {"status": "success", "data": cart_items, "count": len(cart_items)}
+        

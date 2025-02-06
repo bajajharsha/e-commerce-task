@@ -13,3 +13,10 @@ async def register(
     user_id = Depends(get_current_user),
     cart_controller: CartController = Depends()):
     return await cart_controller.add_cart(cart_items, user_id)
+
+@router.get("/")
+async def get_cart(
+    user_id = Depends(get_current_user),
+    cart_controller: CartController = Depends()
+):
+    return await cart_controller.get_cart(user_id)
