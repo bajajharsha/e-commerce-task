@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     jwt_secret: str
     jwt_algorithm: str 
     access_token_expire_minutes: int
+    google_cloud_credentials_path: str
+    gcs_bucket_name: str
 
     class Config:
         env_file = ".env"

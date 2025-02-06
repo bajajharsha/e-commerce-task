@@ -20,15 +20,15 @@ class Product:
 
     def to_dict(self):
         return {
-            "_id": str(self._id),  # Convert ObjectId to string for serialization
-            "title": self.title,
-            "description": self.description,
-            "category": self.category,
-            "price": self.price,
-            "rating": self.rating,
-            "brand": self.brand,
-            "images": self.images,
-            "thumbnail": self.thumbnail,
-            "seller_id": str(self.seller_id),  # Convert ObjectId to string
-            "created_at": self.created_at.isoformat(),  # ISO format for datetime
-        }
+        "_id": str(self._id),  # Convert ObjectId to string
+        "title": self.title,
+        "description": self.description,
+        "category": self.category,
+        "price": self.price,
+        "seller_id": str(self.seller_id),  # Convert seller_id ObjectId to string
+        "images": self.images,
+        "thumbnail": self.thumbnail,
+        "rating": self.rating,
+        "brand": self.brand,
+        "created_at": self.created_at.isoformat() if self.created_at else None
+    }

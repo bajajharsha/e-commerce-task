@@ -9,3 +9,5 @@ python-jose
 pydantic[email]
 pydantic-settings
 httpx
+google-cloud-storage
+python-multipart

@@ -1,6 +1,8 @@
 # app/usecases/products_usecase.py
-from fastapi import Depends
+from fastapi import Depends, HTTPException, UploadFile
 from app.services.products_service import ProductsService
+from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema
+
 
 class ProductsUseCase:
     def __init__(self, products_service: ProductsService = Depends()):
@@ -17,3 +19,8 @@ class ProductsUseCase:
     
     async def update_product(self, product_id, product_data):
         return await self.products_service.update_product(product_id, product_data)
+    
+    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile):
+        if not image.content_type.startswith('image/'):
+            raise HTTPException(400, "File must be an image")
+        return await self.products_service.create_product(product_data, image)

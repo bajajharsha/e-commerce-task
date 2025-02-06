@@ -1,9 +1,9 @@
 # app/routes/products_route.py
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, UploadFile, File
 from app.controllers.products_controller import ProductsController
 from app.models.schemas.response_schema import BaseResponse
 from app.utils.dependencies import RoleChecker
-from app.models.schemas.products_schema import ProductUpdateSchema
+from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema, parse_form
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -28,3 +28,11 @@ async def update_product(
     product_controller: ProductsController = Depends(),
 ) -> BaseResponse:
     return await product_controller.update_product(product_id, product_data)
+
+@router.post("/", response_model=BaseResponse, dependencies=[Depends(RoleChecker(["admin", "seller"]))])
+async def add_product(
+    product_data: ProductCreateSchema = Depends(parse_form),
+    image: UploadFile = File(...),
+    product_controller: ProductsController = Depends()
+) -> BaseResponse:
+    return await product_controller.add_product(product_data, image)

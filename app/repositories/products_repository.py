@@ -21,9 +21,16 @@ class ProductsRepository:
         return products
 
     async def save_products(self, products: list) -> None:
+        # print(products)
+
         """Insert multiple products into the database."""
         if products:
             await self.collection.insert_many(products)
+            
+    async def create_product(self, product: dict) -> str:
+        result = await self.collection.insert_one(product)
+        product["_id"] = str(result.inserted_id)
+        return product
 
     async def get_product_by_id(self, product_id: str):
         """Retrieve a single product by its ObjectId."""

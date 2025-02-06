@@ -1,14 +1,15 @@
 # app/services/products_service.py
 import httpx
 import random
-from fastapi import HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status, UploadFile
 from typing import List
 from app.repositories.products_repository import ProductsRepository
 from app.repositories.user_repository import UserRepository
 from app.models.domain.products import Product
 from bson import ObjectId
 from app.models.schemas.response_schema import BaseResponse
-from app.models.schemas.products_schema import ProductUpdateSchema
+from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema
+from app.utils.cloud_storage import upload_to_cloud
 
 class ProductsService:
     def __init__(
@@ -58,7 +59,6 @@ class ProductsService:
 
                 # Convert to dictionary and append
                 assigned_products.append(new_product.to_dict())
-
             # Save to database
             await self.products_repo.save_products(assigned_products)
             
@@ -117,3 +117,17 @@ class ProductsService:
             code=status.HTTP_200_OK,
             error=None
         )
+
+    async def create_product(self, product_data: ProductCreateSchema, image: UploadFile):
+        # Upload image to cloud
+        image_url = await upload_to_cloud(image)
+        
+        # Create product dict with image URL
+        product_dict = product_data.dict()
+        product_dict["images"] = [image_url]
+        
+        # # Save to database
+        product = await self.products_repo.create_product(product_dict)
+        # product_dict["id"] = str(product_id)
+        
+        return product

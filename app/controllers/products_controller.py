@@ -1,9 +1,9 @@
 # app/controllers/products_controller.py
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, UploadFile
 from app.usecases.products_usecase import ProductsUseCase
 from fastapi.responses import JSONResponse
 from app.models.schemas.response_schema import BaseResponse
-from app.models.schemas.products_schema import ProductUpdateSchema
+from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema
 
 class ProductsController:
     def __init__(self, products_usecase: ProductsUseCase = Depends()):
@@ -77,3 +77,12 @@ class ProductsController:
                     )
             )
         return updated_product
+    
+    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile) -> BaseResponse:
+        result = await self.products_usecase.add_product(product_data, image)
+        return BaseResponse(
+            code=status.HTTP_201_CREATED,
+            message="Product added successfully",
+            data=result,
+            error=None
+        )

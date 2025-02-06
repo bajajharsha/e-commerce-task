@@ -101,6 +101,7 @@ class AuthService:
         return BaseResponse(
             data={
                 "message": "Login successful",
+                "access_token": access_token
             },
             message="Login successful",
             code=status.HTTP_200_OK,
