@@ -1,0 +1,12 @@
+from fastapi import Depends, Response
+from app.models.schemas.cart_schema import CartCreate
+from app.models.schemas.response_schema import BaseResponse
+from app.usecases.cart_usecase import CartUseCase
+
+class CartController:
+    def __init__(self, cart_usecase: CartUseCase = Depends()):
+        self.cart_usecase = cart_usecase
+
+    async def add_cart(self, cart: CartCreate, user_id: str):
+        return await self.cart_usecase.add_cart(cart, user_id)
+
