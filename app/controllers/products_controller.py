@@ -78,8 +78,8 @@ class ProductsController:
             )
         return updated_product
     
-    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile) -> BaseResponse:
-        result = await self.products_usecase.add_product(product_data, image)
+    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile, seller_id) -> BaseResponse:
+        result = await self.products_usecase.add_product(product_data, image, seller_id)
         return BaseResponse(
             code=status.HTTP_201_CREATED,
             message="Product added successfully",

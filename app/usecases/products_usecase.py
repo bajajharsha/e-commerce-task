@@ -20,7 +20,7 @@ class ProductsUseCase:
     async def update_product(self, product_id, product_data):
         return await self.products_service.update_product(product_id, product_data)
     
-    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile):
+    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile, seller_id):
         if not image.content_type.startswith('image/'):
             raise HTTPException(400, "File must be an image")
-        return await self.products_service.create_product(product_data, image)
+        return await self.products_service.create_product(product_data, image, seller_id)

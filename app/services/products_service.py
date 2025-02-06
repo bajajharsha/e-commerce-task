@@ -10,6 +10,7 @@ from bson import ObjectId
 from app.models.schemas.response_schema import BaseResponse
 from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema
 from app.utils.cloud_storage import upload_to_cloud
+from app.utils.auth import get_current_user
 
 class ProductsService:
     def __init__(
@@ -118,13 +119,15 @@ class ProductsService:
             error=None
         )
 
-    async def create_product(self, product_data: ProductCreateSchema, image: UploadFile):
+    async def create_product(self, product_data: ProductCreateSchema, image: UploadFile, seller_id):
+        # seller_id = get_current_user()
         # Upload image to cloud
         image_url = await upload_to_cloud(image)
         
         # Create product dict with image URL
         product_dict = product_data.dict()
         product_dict["images"] = [image_url]
+        product_dict["seller_id"] = str(seller_id)
         
         # # Save to database
         product = await self.products_repo.create_product(product_dict)

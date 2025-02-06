@@ -17,3 +17,13 @@ class UserRepository:
         """Retrieve all users with a given role (e.g., 'seller')."""
         sellers = await self.collection.find({"role": role}).to_list(length=None)
         return [{**seller, "_id": str(seller["_id"])} for seller in sellers]
+    
+    async def get_admin_emails(self) -> list[str]:
+        """Fetch emails of all admins."""
+        admins = await self.collection.find({"role": "admin"}, {"email": 1, "_id": 0}).to_list(None)
+        return [admin["email"] for admin in admins]
+
+    async def get_seller_email(self, seller_id: str):
+        """Fetch seller's email using seller_id."""
+        seller = await self.collection.find_one({"_id": seller_id, "role": "seller"}, {"email": 1})
+        return seller["email"] if seller else None

@@ -4,6 +4,7 @@ from app.controllers.products_controller import ProductsController
 from app.models.schemas.response_schema import BaseResponse
 from app.utils.dependencies import RoleChecker
 from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema, parse_form
+from app.utils.auth import get_current_user
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -33,6 +34,7 @@ async def update_product(
 async def add_product(
     product_data: ProductCreateSchema = Depends(parse_form),
     image: UploadFile = File(...),
-    product_controller: ProductsController = Depends()
+    product_controller: ProductsController = Depends(),
+    seller_id: str = Depends(get_current_user),
 ) -> BaseResponse:
-    return await product_controller.add_product(product_data, image)
+    return await product_controller.add_product(product_data, image, seller_id)
