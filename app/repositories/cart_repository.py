@@ -1,6 +1,7 @@
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorCollection
 from app.config.database import database
+from app.models.schemas.cart_schema import Order
 
 class CartRepository:
     def __init__(self, cart_collection: AsyncIOMotorCollection = Depends(database.get_db)):
@@ -16,3 +17,6 @@ class CartRepository:
         for cart_item in cart_items:
             cart_item["_id"] = str(cart_item["_id"])
         return cart_items
+    
+    async def clear_cart(self, user_id: str):
+        await self.collection.delete_many({"user_id": user_id})

@@ -5,7 +5,7 @@ from app.models.schemas.cart_schema import CartCreate
 from app.utils.auth import get_current_user
 from app.controllers.cart_controller import CartController
 
-router = APIRouter(prefix="/cart", tags=["Authentication"])
+router = APIRouter(prefix="/cart", tags=["Cart"])
 
 @router.post("/add", dependencies=[Depends(RoleChecker(["admin"]))])
 async def register(

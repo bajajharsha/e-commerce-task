@@ -9,6 +9,7 @@ class Database:
         self.products_collection = self.db["products"]
         self.complaint_collection = self.db["complaints"]
         self.cart_collection = self.db["cart"]
+        self.order_collection = self.db["order"]
         
     async def get_db(self):
         self.db
@@ -24,6 +25,9 @@ class Database:
     
     def get_cart_collection(self):
         return self.cart_collection
+    
+    def get_order_collection(self):
+        return self.order_collection
 
 database = Database()
 
