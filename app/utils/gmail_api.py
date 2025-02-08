@@ -1,55 +1,83 @@
-import base64
-from google.oauth2 import service_account
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from email.mime.text import MIMEText
-from app.config.settings import settings
+from email.mime.multipart import MIMEMultipart
+import base64
+import os
+import pickle
+from typing import List, Dict, Any
 
-async def send_email(email_draft: str, seller_email: str, admin_emails: list[str]):
-    """Send an email using the Gmail API.
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+async def get_gmail_service():
+    """Gets valid user credentials from storage and creates Gmail service."""
+    creds = None
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
     
-    Args:
-        email_draft: The body content of the email
-        seller_email: The seller's email address
-        admin_emails: List of admin email addresses
-    
-    Returns:
-        str: Success or error message
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            # For desktop applications, we use a simpler flow
+            flow = InstalledAppFlow.from_client_secrets_file(
+                '/Users/harshabajaj/Desktop/e-commerce/gmail.json', 
+                SCOPES
+            )
+            # This will open the default browser for authentication
+            creds = flow.run_local_server(port=0)  # port=0 means pick any available port
+        
+        # Save the credentials for the next run
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    return build('gmail', 'v1', credentials=creds)
+
+async def send_email(
+    email_draft: str,
+    seller_email: str,
+    admin_emails: List[str]
+) -> Dict[str, Any]:
+    """
+    Send email to seller and admins using Gmail API
     """
     try:
-        # Get service account credentials
-        credentials = service_account.Credentials.from_service_account_file(
-            settings.google_cloud_credentials_path,
-            scopes=[   
-                'https://www.googleapis.com/auth/gmail.send',
-                'https://www.googleapis.com/auth/gmail.readonly'
-            ]
+        service = await get_gmail_service()
+        
+        message = MIMEMultipart()
+        message['to'] = seller_email
+        message['cc'] = ', '.join(admin_emails)
+        message['subject'] = "Urgent: Buyer Complaint Regarding Product Issue"
+        message['from'] = "me"
+        
+        body = MIMEText(email_draft)
+        message.attach(body)
+        
+        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        
+        create_message = {
+            'raw': encoded_message
+        }
+        
+        send_message = (
+            service.users()
+            .messages()
+            .send(userId="me", body=create_message)
+            .execute()
         )
         
-        # Add domain-wide delegation
-        delegated_credentials = credentials.with_subject(settings.gmail_delegate_email)
+        return {
+            "success": True,
+            "message_id": send_message['id'],
+            "thread_id": send_message['threadId']
+        }
         
-        # Build the Gmail service
-        service = build('gmail', 'v1', credentials=delegated_credentials)
-        
-        # Create the email message
-        message = MIMEText(email_draft)
-        message['to'] = ', '.join([seller_email] + admin_emails)
-        message['from'] = settings.gmail_delegate_email
-        message['subject'] = "Urgent: Buyer Complaint Regarding Product Issue"
-        
-        # Encode the message
-        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-        body = {'raw': raw_message}
-        
-        # Send the email
-        send_request = service.users().messages().send(
-            userId=settings.gmail_delegate_email,
-            body=body
-        ).execute()
-        
-        return f"Email sent successfully. Message ID: {send_request.get('id', 'unknown')}"
-        
-    except Exception as e:
-        error_message = f"Error sending email: {str(e)}"
-        print(error_message)  # For logging
-        return error_message
+    except Exception as error:
+        print(f"Error details: {str(error)}")  # Added detailed error logging
+        return {
+            "success": False,
+            "error": str(error)
+        }

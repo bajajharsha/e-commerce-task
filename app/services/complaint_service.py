@@ -34,12 +34,11 @@ class ComplaintService:
         seller_email = await self.user_repo.find_seller(complaint_data["product_id"])
         admin_emails = await self.user_repo.get_admin_emails()
         
-        # response = await send_email(email_draft, seller_email, admin_emails)
+        response = await send_email(email_draft, seller_email, admin_emails)
         
         # send email to the particular seller and all admins
-
         return BaseResponse(
-            data=complaint_id,
+            data=response,
             message="Complaint Filed successfully",
             code=status.HTTP_200_OK,
             error=None
