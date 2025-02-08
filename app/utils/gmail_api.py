@@ -1,39 +1,55 @@
-import smtplib
+import base64
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from app.config.settings import settings
 
-async def send_complaint_email(user_id: str, order_id: str, product_id: str, issue_summary: str, image_url: str):
-    # Gmail API logic to send the complaint email (you can integrate with Gmail API here)
+async def send_email(email_draft: str, seller_email: str, admin_emails: list[str]):
+    """Send an email using the Gmail API.
     
-    # For example, using SMTP to send an email
-    sender_email = "your-email@gmail.com"
-    receiver_emails = ["seller-email@example.com", "admin-email@example.com"]
-    subject = "Urgent: Buyer Complaint Regarding Product Issue"
+    Args:
+        email_draft: The body content of the email
+        seller_email: The seller's email address
+        admin_emails: List of admin email addresses
     
-    body = f"""
-    Hello Seller/Admin,
-    
-    A Buyer (User ID: {user_id}) has reported an issue with their order.
-    
-    Order ID: {order_id}
-    Product ID: {product_id}
-    Issue Summary: {issue_summary}
-    Uploaded Image (if any): {image_url}
-    
-    Please review the complaint and take necessary action.
-    
-    Best Regards,
-    Customer Support Team
+    Returns:
+        str: Success or error message
     """
-
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = ", ".join(receiver_emails)
-    msg['Subject'] = subject
-
-    msg.attach(MIMEText(body, 'plain'))
-
-    with smtplib.SMTP('smtp.gmail.com', 587) as server:
-        server.starttls()
-        server.login(sender_email, "your-email-password")
-        server.sendmail(sender_email, receiver_emails, msg.as_string())
+    try:
+        # Get service account credentials
+        credentials = service_account.Credentials.from_service_account_file(
+            settings.google_cloud_credentials_path,
+            scopes=[   
+                'https://www.googleapis.com/auth/gmail.send',
+                'https://www.googleapis.com/auth/gmail.readonly'
+            ]
+        )
+        
+        # Add domain-wide delegation
+        delegated_credentials = credentials.with_subject(settings.gmail_delegate_email)
+        
+        # Build the Gmail service
+        service = build('gmail', 'v1', credentials=delegated_credentials)
+        
+        # Create the email message
+        message = MIMEText(email_draft)
+        message['to'] = ', '.join([seller_email] + admin_emails)
+        message['from'] = settings.gmail_delegate_email
+        message['subject'] = "Urgent: Buyer Complaint Regarding Product Issue"
+        
+        # Encode the message
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        body = {'raw': raw_message}
+        
+        # Send the email
+        send_request = service.users().messages().send(
+            userId=settings.gmail_delegate_email,
+            body=body
+        ).execute()
+        
+        return f"Email sent successfully. Message ID: {send_request.get('id', 'unknown')}"
+        
+    except Exception as e:
+        error_message = f"Error sending email: {str(e)}"
+        print(error_message)  # For logging
+        return error_message
