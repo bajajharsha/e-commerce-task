@@ -1,8 +1,9 @@
-from fastapi import Depends, HTTPException, status, Response
-from app.services.auth_services import AuthService
-from app.models.schemas.user_schema import UserCreate, UserResponse
+from fastapi import Depends, Response, status
+
 from app.models.schemas.response_schema import BaseResponse
-from app.models.schemas.user_schema import UserLogin
+from app.models.schemas.user_schema import UserCreate, UserLogin
+from app.services.auth_services import AuthService
+
 
 class AuthUseCase:
     def __init__(self, auth_service: AuthService = Depends(AuthService)):
@@ -15,10 +16,11 @@ class AuthUseCase:
                 data=None,
                 message="Registration failed",
                 code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                error=result["error"]
+                error=result["error"],
             )
         return result
-    
-    
-    async def login_user(self, user_data: UserLogin, response: Response) -> BaseResponse:
+
+    async def login_user(
+        self, user_data: UserLogin, response: Response
+    ) -> BaseResponse:
         return await self.auth_service.login_user(user_data, response)

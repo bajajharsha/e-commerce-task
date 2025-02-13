@@ -1,11 +1,13 @@
-from typing import Literal, List
-from pydantic import BaseModel, EmailStr
-from bson import ObjectId
+from typing import List
+
+from pydantic import BaseModel
+
 
 class CartCreate(BaseModel):
     # user_id: ObjectId
     product_id: str
     quantity: int
+
 
 class OrderItem(BaseModel):
     product_id: str

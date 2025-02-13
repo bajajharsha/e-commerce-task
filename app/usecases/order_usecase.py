@@ -1,7 +1,9 @@
-from fastapi import Depends, HTTPException, status, Response
+from fastapi import Depends
+
 from app.services.order_service import OrderService
+
 # from app.models.schemas.cart_schema import CartCreate
-from app.models.schemas.response_schema import BaseResponse
+
 
 class OrderUseCase:
     def __init__(self, order_service: OrderService = Depends()):

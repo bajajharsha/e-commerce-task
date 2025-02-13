@@ -1,9 +1,11 @@
 # app/controllers/products_controller.py
-from fastapi import Depends, HTTPException, status, UploadFile
-from app.usecases.products_usecase import ProductsUseCase
+from fastapi import Depends, UploadFile, status
 from fastapi.responses import JSONResponse
+
+from app.models.schemas.products_schema import ProductCreateSchema, ProductUpdateSchema
 from app.models.schemas.response_schema import BaseResponse
-from app.models.schemas.products_schema import ProductUpdateSchema, ProductCreateSchema
+from app.usecases.products_usecase import ProductsUseCase
+
 
 class ProductsController:
     def __init__(self, products_usecase: ProductsUseCase = Depends()):
@@ -19,8 +21,8 @@ class ProductsController:
                     "success": False,
                     "message": "Error while fetching the products",
                     "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "error": str(e)
-                }
+                    "error": str(e),
+                },
             )
 
     async def preload_products(self) -> BaseResponse:
@@ -33,11 +35,13 @@ class ProductsController:
                     "success": False,
                     "message": "Error while preloading products",
                     "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "error": str(e)
-                }
+                    "error": str(e),
+                },
             )
-            
-    async def get_product_by_id(self, product_id: str, products_usecase: ProductsUseCase = Depends()) -> BaseResponse:
+
+    async def get_product_by_id(
+        self, product_id: str, products_usecase: ProductsUseCase = Depends()
+    ) -> BaseResponse:
         try:
             product = await self.products_usecase.get_product_by_id(product_id)
             if not product:
@@ -47,42 +51,46 @@ class ProductsController:
                         data=None,
                         message="Some error occurred while fetching the data",
                         code=status.HTTP_404_NOT_FOUND,
-                        error="Not Found"
-                    )
+                        error="Not Found",
+                    ),
                 )
-            
+
             return product
         except Exception as e:
             return JSONResponse(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    content=BaseResponse(
-                        data=None,
-                        message="Some error occurred while fetching the data",
-                        code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        error=str(e)
-                    )
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content=BaseResponse(
+                    data=None,
+                    message="Some error occurred while fetching the data",
+                    code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    error=str(e),
+                ),
             )
-            
+
     async def update_product(self, product_id: str, product_data: ProductUpdateSchema):
         # Call the service to update the product
-        updated_product = await self.products_usecase.update_product(product_id, product_data)
+        updated_product = await self.products_usecase.update_product(
+            product_id, product_data
+        )
         if not updated_product:
             return JSONResponse(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    content=BaseResponse(
-                        data=None,
-                        message="Some error occurred while fetching the data",
-                        code=status.HTTP_404_NOT_FOUND,
-                        error="Product Not Found"
-                    )
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=BaseResponse(
+                    data=None,
+                    message="Some error occurred while fetching the data",
+                    code=status.HTTP_404_NOT_FOUND,
+                    error="Product Not Found",
+                ),
             )
         return updated_product
-    
-    async def add_product(self, product_data: ProductCreateSchema, image: UploadFile, seller_id) -> BaseResponse:
+
+    async def add_product(
+        self, product_data: ProductCreateSchema, image: UploadFile, seller_id
+    ) -> BaseResponse:
         result = await self.products_usecase.add_product(product_data, image, seller_id)
         return BaseResponse(
             code=status.HTTP_201_CREATED,
             message="Product added successfully",
             data=result,
-            error=None
+            error=None,
         )

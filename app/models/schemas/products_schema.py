@@ -1,7 +1,8 @@
+from typing import List, Optional
+
 from fastapi import Form
 from pydantic import BaseModel
-from typing import List, Optional
-from bson import ObjectId
+
 
 class ProductCreate(BaseModel):
     title: str
@@ -26,7 +27,8 @@ class ProductUpdateSchema(BaseModel):
     thumbnail: Optional[str] = None
     seller_id: Optional[str] = None
     created_at: Optional[str] = None
-    
+
+
 class ProductCreateSchema(BaseModel):
     title: str
     description: str
@@ -35,6 +37,7 @@ class ProductCreateSchema(BaseModel):
     rating: Optional[float] = None
     brand: Optional[str] = None
     thumbnail: Optional[str] = None
+
 
 async def parse_form(
     title: str = Form(...),
@@ -52,8 +55,10 @@ async def parse_form(
         price=price,
         rating=rating,
         brand=brand,
-        thumbnail=thumbnail
+        thumbnail=thumbnail,
     )
+
+
 # class ProductResponse(BaseModel):
 #     id: str
 #     title: str

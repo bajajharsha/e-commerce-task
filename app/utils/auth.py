@@ -1,8 +1,11 @@
-from fastapi import Request, HTTPException, status, Depends
+from fastapi import HTTPException, Request, status
 from jose import JWTError, jwt
+
 from app.config.settings import settings
+
 # from models.domain.user import User
 # from app.utils.auth import SECRET_KEY, ALGORITHM
+
 
 async def get_current_user(request: Request):
     # Extract the JWT token from the cookies
@@ -16,14 +19,16 @@ async def get_current_user(request: Request):
 
     try:
         # Decode the token and extract the user data
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        payload = jwt.decode(
+            token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
+        )
         user_id: str = payload.get("sub")
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
             )
-            
+
         return user_id
 
     except JWTError:

@@ -1,11 +1,12 @@
 import base64
-import json
-import os
 from email.mime.text import MIMEText
+from typing import List
+
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-from typing import List
+
 from app.config.settings import settings
+
 
 class EmailUtils:
     def __init__(self):
@@ -19,7 +20,9 @@ class EmailUtils:
         creds = Credentials.from_service_account_file(key_path, scopes=self.SCOPES)
         return build("gmail", "v1", credentials=creds)
 
-    def create_email(self, sender: str, recipients: List[str], subject: str, body: str) -> dict:
+    def create_email(
+        self, sender: str, recipients: List[str], subject: str, body: str
+    ) -> dict:
         """Create an email message."""
         message = MIMEText(body, "html")
         message["From"] = sender
@@ -38,5 +41,3 @@ class EmailUtils:
             return {"message": "Email sent successfully"}
         except Exception as e:
             return {"error": str(e)}
-
-    

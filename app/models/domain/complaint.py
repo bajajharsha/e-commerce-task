@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
 from typing import Literal
+
 from bson import ObjectId
+from pydantic import BaseModel
+
 
 class Complaint(BaseModel):
     user_id: ObjectId
@@ -9,4 +11,3 @@ class Complaint(BaseModel):
     issue: str
     image_url: str
     status: Literal["open", "rejected"] = "open"
-

@@ -1,5 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+
 from app.config.settings import settings
+
 
 class Database:
     def __init__(self):
@@ -10,25 +12,24 @@ class Database:
         self.complaint_collection = self.db["complaints"]
         self.cart_collection = self.db["cart"]
         self.order_collection = self.db["order"]
-        
+
     async def get_db(self):
         self.db
 
     def get_user_collection(self):
         return self.user_collection
-    
+
     def get_products_collection(self):
         return self.products_collection
-    
+
     def get_complaint_collection(self):
         return self.complaint_collection
-    
+
     def get_cart_collection(self):
         return self.cart_collection
-    
+
     def get_order_collection(self):
         return self.order_collection
 
+
 database = Database()
-
-

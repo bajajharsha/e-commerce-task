@@ -1,7 +1,7 @@
-from fastapi import Depends, Response
-from app.models.schemas.cart_schema import CartCreate
-from app.models.schemas.response_schema import BaseResponse
+from fastapi import Depends
+
 from app.usecases.order_usecase import OrderUseCase
+
 
 class OrderController:
     def __init__(self, order_usecase: OrderUseCase = Depends()):

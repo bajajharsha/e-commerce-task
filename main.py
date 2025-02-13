@@ -1,5 +1,12 @@
 from fastapi import FastAPI
-from app.routes import auth_routes, products_route, complaint_route, cart_route, order_route
+
+from app.routes import (
+    auth_routes,
+    cart_route,
+    complaint_route,
+    order_route,
+    products_route,
+)
 
 app = FastAPI()
 

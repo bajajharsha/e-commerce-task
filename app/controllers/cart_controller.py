@@ -1,7 +1,8 @@
-from fastapi import Depends, Response
+from fastapi import Depends
+
 from app.models.schemas.cart_schema import CartCreate
-from app.models.schemas.response_schema import BaseResponse
 from app.usecases.cart_usecase import CartUseCase
+
 
 class CartController:
     def __init__(self, cart_usecase: CartUseCase = Depends()):
