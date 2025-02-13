@@ -2,3 +2,5 @@
 venv/
 .vscode/
 NodalTalon.json
+gmail.json
+token.pickle
